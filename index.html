@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生活・学習習慣管理アプリ</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        /* ログイン画面 */
+        .login-screen {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .login-screen.hidden {
+            display: none;
+        }
+
+        .login-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            text-align: left;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            color: #ff4757;
+            margin-top: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .success-message {
+            color: #2ecc71;
+            margin-top: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* メインアプリ */
+        .main-app {
+            display: none;
+        }
+
+        .main-app.active {
+            display: block;
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .user-role {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .user-id, .login-time {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .permission-denied {
+            background: #ffe6e6;
+            border: 2px solid #ff4757;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            color: #d63031;
+            margin: 20px 0;
+        }
+
+        .time-input-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .time-input {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .records-list {
+            margin-top: 30px;
+        }
+
+        .record-item {
+            background: #f8f9ff;
+            border: 1px solid #e0e6ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .record-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .record-date {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .record-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .detail-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .comment-section {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .comment-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .comment-input input {
+            flex: 1;
+        }
+
+        .comment-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .comment-list {
+            margin-top: 10px;
+        }
+
+        .comment-item {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .tasks-section {
+            background: rgba(255, 248, 220, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .task-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .task-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ff9800;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .admin-panel {
+            background: rgba(255, 240, 240, 0.9);
+            border: 2px solid #ff9800;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .security-info {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .login-screen {
+                padding: 20px;
+                margin: 20px;
+            }
+
+            .time-input-group {
+                flex-direction: column;
+            }
+
+            .record-details {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .user-info {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 生活・学習習慣管理</h1>
+            <p>セキュアなログインシステムで安全に記録管理</p>
+        </div>
+
+        <!-- ログイン画面 -->
+        <div class="login-screen" id="loginScreen">
+            <h2 class="login-title">🔐 ログイン</h2>
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="userType">ユーザータイプ</label>
+                    <select id="userType" name="userType" required>
+                        <option value="">選択してください</option>
+                        <option value="student">🎓 生徒</option>
+                        <option value="admin">👨‍🏫 管理者</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="userId">ユーザーID</label>
+                    <input type="text" id="userId" name="userId" required 
+                           placeholder="例: student01, admin01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">パスワード</label>
+                    <input type="password" id="password" name="password" required 
+                           placeholder="パスワードを入力してください">
+                </div>
+                
+                <button type="submit" class="login-btn">🔓 ログイン</button>
+            </form>
+            
+            <div id="loginMessage"></div>
+            
+            <div class="security-info">
+                <strong>🔒 デモ用アカウント情報:</strong><br>
+                <strong>生徒:</strong> ID: student01, パスワード: student123<br>
+                <strong>管理者:</strong> ID: admin01, パスワード: admin456<br>
+                ※実運用では安全なパスワードを使用してください
+            </div>
+        </div>
+
+        <!-- メインアプリケーション -->
+        <div class="main-app" id="mainApp">
+            <div class="user-info">
+                <div class="user-details">
+                    <div class="user-role" id="userRole"></div>
+                    <div class="user-id" id="userIdDisplay"></div>
+                    <div class="login-time" id="loginTime"></div>
+                </div>
+                <button class="logout-btn" onclick="logout()">🚪 ログアウト</button>
+            </div>
+
+            <div class="main-content">
+                <!-- 生徒用画面 -->
+                <div id="studentView">
+                    <h2>📝 今日の記録を入力しよう</h2>
+                    
+                    <form id="recordForm">
+                        <div class="time-input-group">
+                            <div class="form-group time-input">
+                                <label for="wakeTime">🌅 起床時間</label>
+                                <input type="time" id="wakeTime" name="wakeTime" required>
+                            </div>
+                            <div class="form-group time-input">
+                                <label for="sleepTime">🌙 就寝時間</label>
+                                <input type="time" id="sleepTime" name="sleepTime" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="studyTime">📖 勉強時間（分）</label>
+                            <input type="number" id="studyTime" name="studyTime" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="studyContent">📚 勉強内容（具体的に）</label>
+                            <textarea id="studyContent" name="studyContent" rows="3" placeholder="例：数学の二次関数の問題集20問、英単語50個暗記"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phoneTime">📱 スマホ時間（分）</label>
+                            <input type="number" id="phoneTime" name="phoneTime" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="practiceTime">⚽ 部活自主練習時間（分）</label>
+                            <input type="number" id="practiceTime" name="practiceTime" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="practiceContent">🏃‍♂️ 自主練習内容（具体的に）</label>
+                            <textarea id="practiceContent" name="practiceContent" rows="3" placeholder="例：ランニング30分、筋トレ（腹筋100回、腕立て50回）"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reflection">💭 今日の感想・反省</label>
+                            <textarea id="reflection" name="reflection" rows="4" placeholder="今日頑張ったこと、改善したいこと、明日の目標など"></textarea>
+                        </div>
+
+                        <button type="submit" class="submit-btn">📝 記録を保存</button>
+                    </form>
+
+                    <!-- タスク表示エリア -->
+                    <div class="tasks-section" id="studentTasks" style="display: none;">
+                        <h3>📋 今日のタスク</h3>
+                        <div id="taskListForStudent" class="task-list"></div>
+                    </div>
+
+                    <!-- 過去の記録 -->
+                    <div class="records-list">
+                        <h3>📊 あなたの記録履歴</h3>
+                        <div id="studentRecords"></div>
+                    </div>
+                </div>
+
+                <!-- 管理者用画面 -->
+                <div id="adminView">
+                    <div class="admin-panel">
+                        <h2>👨‍🏫 管理者ダッシュボード</h2>
+                        <p>🔐 管理者権限でログイン中です。生徒のデータ閲覧・管理が可能です。</p>
+                    </div>
+                    
+                    <!-- 統計情報 -->
+                    <div class="stats">
+                        <div class="stat-card">
+                            <span class="stat-number" id="totalRecords">0</span>
+                            <span class="stat-label">総記録数</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number" id="avgStudyTime">0</span>
+                            <span class="stat-label">平均勉強時間（分）</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number" id="avgPhoneTime">0</span>
+                            <span class="stat-label">平均スマホ時間（分）</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number" id="avgPracticeTime">0</span>
+                            <span class="stat-label">平均練習時間（分）</span>
+                        </div>
+                    </div>
+
+                    <!-- タスク管理 -->
+                    <div class="tasks-section">
+                        <h3>📋 課題管理</h3>
+                        <div class="task-input">
+                            <input type="text" id="newTask" placeholder="新しい課題を入力してください">
+                            <button onclick="addTask()" class="comment-btn">📝 追加</button>
+                        </div>
+                        <div id="taskList" class="task-list"></div>
+                    </div>
+
+                    <!-- 記録一覧とコメント -->
+                    <div class="records-list">
+                        <h3>📊 全生徒の記録とコメント</h3>
+                        <div id="adminRecords"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // アプリケーションの状態管理
+        let currentUser = null;
+        let records = [];
+        let tasks = [];
+
+        // ユーザー管理データベース（実際の運用ではサーバーサイドで管理）
+        // ユーザー管理データベース（実際の運用ではサーバーサイドで管理）
+const users = {
+    // 管理者アカウント
+    'admin01': {
+        id: 'admin01',
+        password: 'shoko2153', // ※運用時は必ず変更してください
+        role: 'admin',
+        name: '管理者01'
+    },
+    
+    // 生徒アカウント（グループA: 1-12番）
+    'student01': { id: 'student01', password: '2024shoko', role: 'student', name: '生徒01' },
+    'student02': { id: 'student02', password: '2024shoko', role: 'student', name: '生徒02' },
+    'student03': { id: 'student03', password: '2024shoko', role: 'student', name: '生徒03' },
+    'student04': { id: 'student04', password: '2024shoko', role: 'student', name: '生徒04' },
+    'student05': { id: 'student05', password: '2024shoko', role: 'student', name: '生徒05' },
+    'student06': { id: 'student06', password: '2024shoko', role: 'student', name: '生徒06' },
+    'student07': { id: 'student07', password: '2024shoko', role: 'student', name: '生徒07' },
+    'student08': { id: 'student08', password: '2024shoko', role: 'student', name: '生徒08' },
+    'student09': { id: 'student09', password: '2024shoko', role: 'student', name: '生徒09' },
+    'student10': { id: 'student10', password: '2024shoko', role: 'student', name: '生徒10' },
+    'student11': { id: 'student11', password: '2024shoko', role: 'student', name: '生徒11' },
+    'student12': { id: 'student12', password: '2024shoko', role: 'student', name: '生徒12' },
+    
+    // 生徒アカウント（グループB: 13-24番）
+    'student13': { id: 'student13', password: 'shoko2024', role: 'student', name: '生徒13' },
+    'student14': { id: 'student14', password: 'shoko2024', role: 'student', name: '生徒14' },
+    'student15': { id: 'student15', password: 'shoko2024', role: 'student', name: '生徒15' },
+    'student16': { id: 'student16', password: 'shoko2024', role: 'student', name: '生徒16' },
+    'student17': { id: 'student17', password: 'shoko2024', role: 'student', name: '生徒17' },
+    'student18': { id: 'student18', password: 'shoko2024', role: 'student', name: '生徒18' },
+    'student19': { id: 'student19', password: 'shoko2024', role: 'student', name: '生徒19' },
+    'student20': { id: 'student20', password: 'shoko2024', role: 'student', name: '生徒20' },
+    'student21': { id: 'student21', password: 'shoko2024', role: 'student', name: '生徒21' },
+    'student22': { id: 'student22', password: 'shoko2024', role: 'student', name: '生徒22' },
+    'student23': { id: 'student23', password: 'shoko2024', role: 'student', name: '生徒23' },
+    'student24': { id: 'student24', password: 'shoko2024', role: 'student', name: '生徒24' }
+};
+
+        // 権限管理
+        const permissions = {
+            student: {
+                canCreateRecord: true,
+                canViewOwnRecords: true,
+                canViewAllRecords: false,
+                canAddComment: false,
+                canManageTasks: false,
+                canViewStats: false
+            },
+            admin: {
+                canCreateRecord: false,
+                canViewOwnRecords: false,
+                canViewAllRecords: true,
+                canAddComment: true,
+                canManageTasks: true,
+                canViewStats: true
+            }
+        };
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            
+            // ログインフォーム送信イベント
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleLogin();
+            });
+
+            // 記録フォーム送信イベント
+            document.getElementById('recordForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveRecord();
+            });
+        });
+
+        // 権限チェック関数
+        function hasPermission(action) {
+            if (!currentUser) return false;
+            return permissions[currentUser.role][action] || false;
+        }
+
+        // 権限エラー表示
+        function showPermissionError(action) {
+            const message = `⚠️ 権限エラー: ${action}の権限がありません。`;
+            alert(message);
+            console.warn(`Permission denied: ${currentUser?.id || 'Anonymous'} tried to ${action}`);
+        }
+
+        // ログイン処理
+        function handleLogin() {
+            const formData = new FormData(document.getElementById('loginForm'));
+            const userType = formData.get('userType');
+            const userId = formData.get('userId');
+            const password = formData.get('password');
+            
+            const messageElement = document.getElementById('loginMessage');
+            messageElement.innerHTML = '';
+
+            // 入力検証
+            if (!userType || !userId || !password) {
+                showMessage(messageElement, '全ての項目を入力してください。', 'error');
+                return;
+            }
+
+            // ユーザー認証
+            const user = users[userId];
+            if (!user) {
+                showMessage(messageElement, 'ユーザーIDが見つかりません。', 'error');
+                return;
+            }
+
+            if (user.password !== password) {
+                showMessage(messageElement, 'パスワードが正しくありません。', 'error');
+                return;
+            }
+
+            if (user.role !== userType) {
+                showMessage(messageElement, 'ユーザータイプが一致しません。', 'error');
+                return;
+            }
+
+            // ログイン成功
+            currentUser = user;
+            sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            showMessage(messageElement, 'ログインに成功しました！', 'success');
+            
+            setTimeout(() => {
+                showMainApp();
+            }, 1000);
+        }
+
+        // メインアプリ表示
+        function showMainApp() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.add('active');
+            
+            // ユーザー情報表示
+            document.getElementById('userRole').textContent = 
+                currentUser.role === 'student' ? '🎓 生徒' : '👨‍🏫 管理者';
+            document.getElementById('userIdDisplay').textContent = 
+                `ユーザーID: ${currentUser.id}`;
+            document.getElementById('loginTime').textContent = 
+                `ログイン時刻: ${new Date().toLocaleString('ja-JP')}`;
+            
+            // 権限に応じた画面表示
+            if (currentUser.role === 'student') {
+                document.getElementById('studentView').style.display = 'block';
+                document.getElementById('adminView').style.display = 'none';
+            } else {
+                document.getElementById('studentView').style.display = 'none';
+                document.getElementById('adminView').style.display = 'block';
+            }
+            
+            updateDisplay();
+        }
+
+        // ログアウト処理
+        function logout() {
+            if (confirm('ログアウトしますか？')) {
+                currentUser = null;
+                sessionStorage.removeItem('currentUser');
+                
+                // 画面をリセット
+                document.getElementById('mainApp').classList.remove('active');
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('loginForm').reset();
+                document.getElementById('loginMessage').innerHTML = '';
+                
+                // フォームをリセット
+                document.getElementById('recordForm').reset();
+            }
+        }
+
+        // メッセージ表示ヘルパー
+        function showMessage(element, message, type) {
+            element.innerHTML = `<div class="${type}-message">${message}</div>`;
+        }
+
+        // 記録保存（生徒のみ）
+        function saveRecord() {
+            if (!hasPermission('canCreateRecord')) {
+                showPermissionError('記録の作成');
+                return;
+            }
+            
+            const formData = new FormData(document.getElementById('recordForm'));
+            const record = {
+                id: Date.now(),
+                studentId: currentUser.id,
+                date: new Date().toLocaleDateString('ja-JP'),
+                timestamp: new Date().toISOString(),
+                wakeTime: formData.get('wakeTime'),
+                sleepTime: formData.get('sleepTime'),
+                studyTime: parseInt(formData.get('studyTime')),
+                studyContent: formData.get('studyContent'),
+                phoneTime: parseInt(formData.get('phoneTime')),
+                practiceTime: parseInt(formData.get('practiceTime')),
+                practiceContent: formData.get('practiceContent'),
+                reflection: formData.get('reflection'),
+                comments: []
+            };
+            
+            records.unshift(record);
+            saveData();
+            updateDisplay();
+            
+            // フォームリセット
+            document.getElementById('recordForm').reset();
+            
+            alert('記録を保存しました！継続して頑張りましょう 💪');
+        }
+
+        // コメント追加（管理者のみ）
+        function addComment(recordId, commentText) {
+            if (!hasPermission('canAddComment')) {
+                showPermissionError('コメントの追加');
+                return;
+            }
+            
+            if (!commentText.trim()) return;
+            
+            const record = records.find(r => r.id === recordId);
+            if (record) {
+                record.comments.push({
+                    text: commentText,
+                    timestamp: new Date().toLocaleString('ja-JP'),
+                    author: `管理者 (${currentUser.id})`
+                });
+                saveData();
+                updateDisplay();
+            }
+        }
+
+        // タスク追加（管理者のみ）
+        function addTask() {
+            if (!hasPermission('canManageTasks')) {
+                showPermissionError('タスクの管理');
+                return;
+            }
+            
+            const taskText = document.getElementById('newTask').value.trim();
+            if (!taskText) return;
+            
+            tasks.push({
+                id: Date.now(),
+                text: taskText,
+                createdAt: new Date().toLocaleDateString('ja-JP'),
+                createdBy: currentUser.id
+            });
+            
+            document.getElementById('newTask').value = '';
+            saveData();
+            updateDisplay();
+        }
+
+        // タスク削除（管理者のみ）
+        function removeTask(taskId) {
+            if (!hasPermission('canManageTasks')) {
+                showPermissionError('タスクの管理');
+                return;
+            }
+            
+            if (confirm('このタスクを削除しますか？')) {
+                tasks = tasks.filter(task => task.id !== taskId);
+                saveData();
+                updateDisplay();
+            }
+        }
+
+        // 表示更新
+        function updateDisplay() {
+            if (!currentUser) return;
+            
+            if (currentUser.role === 'student') {
+                updateStudentView();
+            } else if (currentUser.role === 'admin') {
+                updateAdminView();
+            }
+        }
+
+        // 生徒画面更新
+        function updateStudentView() {
+            // タスク表示
+            const taskSection = document.getElementById('studentTasks');
+            const taskList = document.getElementById('taskListForStudent');
+            
+            if (tasks.length > 0) {
+                taskSection.style.display = 'block';
+                taskList.innerHTML = tasks.map(task => `
+                    <div class="task-item">
+                        <strong>📝 ${task.text}</strong>
+                        <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                            課題日: ${task.createdAt}
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                taskSection.style.display = 'none';
+            }
+            
+            // 自分の記録のみ表示
+            const studentRecords = document.getElementById('studentRecords');
+            const myRecords = records.filter(r => r.studentId === currentUser.id).slice(0, 10);
+            
+            if (myRecords.length === 0) {
+                studentRecords.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">まだ記録がありません。最初の記録を入力してみましょう！</p>';
+                return;
+            }
+            
+            studentRecords.innerHTML = myRecords.map(record => `
+                <div class="record-item">
+                    <div class="record-date">${record.date}</div>
+                    <div class="record-details">
+                        <div class="detail-item">
+                            <div class="detail-label">起床・就寝</div>
+                            <div class="detail-value">${record.wakeTime} 〜 ${record.sleepTime}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">勉強時間</div>
+                            <div class="detail-value">${record.studyTime}分</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">スマホ時間</div>
+                            <div class="detail-value">${record.phoneTime}分</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">練習時間</div>
+                            <div class="detail-value">${record.practiceTime}分</div>
+                        </div>
+                    </div>
+                    ${record.studyContent ? `
+                        <div class="detail-item" style="margin-top: 10px;">
+                            <div class="detail-label">勉強内容</div>
+                            <div class="detail-value">${record.studyContent}</div>
+                        </div>
+                    ` : ''}
+                    ${record.practiceContent ? `
+                        <div class="detail-item" style="margin-top: 10px;">
+                            <div class="detail-label">練習内容</div>
+                            <div class="detail-value">${record.practiceContent}</div>
+                        </div>
+                    ` : ''}
+                    ${record.reflection ? `
+                        <div class="detail-item" style="margin-top: 10px;">
+                            <div class="detail-label">今日の感想</div>
+                            <div class="detail-value">${record.reflection}</div>
+                        </div>
+                    ` : ''}
+                    ${record.comments.length > 0 ? `
+                        <div class="comment-section">
+                            <h4>💬 管理者からのコメント</h4>
+                            <div class="comment-list">
+                                ${record.comments.map(comment => `
+                                    <div class="comment-item">
+                                        <strong>${comment.author}:</strong> ${comment.text}
+                                        <div style="font-size: 0.8rem; color: #666;">${comment.timestamp}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // 管理者画面更新
+        function updateAdminView() {
+            if (!hasPermission('canViewStats')) {
+                document.querySelector('.stats').innerHTML = '<div class="permission-denied">統計情報を表示する権限がありません</div>';
+            } else {
+                updateStats();
+            }
+            
+            if (!hasPermission('canManageTasks')) {
+                document.querySelector('.tasks-section').innerHTML = '<div class="permission-denied">タスク管理の権限がありません</div>';
+            } else {
+                updateTaskList();
+            }
+            
+            if (!hasPermission('canViewAllRecords')) {
+                document.getElementById('adminRecords').innerHTML = '<div class="permission-denied">全記録を表示する権限がありません</div>';
+            } else {
+                updateAdminRecords();
+            }
+        }
+
+        // 統計更新
+        function updateStats() {
+            const totalRecords = records.length;
+            const avgStudyTime = totalRecords > 0 ? Math.round(records.reduce((sum, r) => sum + r.studyTime, 0) / totalRecords) : 0;
+            const avgPhoneTime = totalRecords > 0 ? Math.round(records.reduce((sum, r) => sum + r.phoneTime, 0) / totalRecords) : 0;
+            const avgPracticeTime = totalRecords > 0 ? Math.round(records.reduce((sum, r) => sum + r.practiceTime, 0) / totalRecords) : 0;
+            
+            document.getElementById('totalRecords').textContent = totalRecords;
+            document.getElementById('avgStudyTime').textContent = avgStudyTime;
+            document.getElementById('avgPhoneTime').textContent = avgPhoneTime;
+            document.getElementById('avgPracticeTime').textContent = avgPracticeTime;
+        }
+
+        // タスクリスト更新
+        function updateTaskList() {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = tasks.map(task => `
+                <div class="task-item">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>📝 ${task.text}</strong>
+                            <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">
+                                作成日: ${task.createdAt} | 作成者: ${task.createdBy}
+                            </div>
+                        </div>
+                        <button onclick="removeTask(${task.id})" 
+                                style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-left: 10px;">
+                            削除
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 管理者記録更新
+        function updateAdminRecords() {
+            const adminRecords = document.getElementById('adminRecords');
+            
+            if (records.length === 0) {
+                adminRecords.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">まだ記録がありません。</p>';
+                return;
+            }
+            
+            // 記録を学生ID別にグループ化
+            const recordsByStudent = records.reduce((groups, record) => {
+                const studentId = record.studentId;
+                if (!groups[studentId]) {
+                    groups[studentId] = [];
+                }
+                groups[studentId].push(record);
+                return groups;
+            }, {});
+            
+            adminRecords.innerHTML = Object.keys(recordsByStudent).map(studentId => `
+                <div style="margin-bottom: 40px; border: 2px solid #e0e6ff; border-radius: 15px; padding: 20px;">
+                    <h4 style="color: #667eea; margin-bottom: 20px;">📚 生徒: ${studentId}</h4>
+                    ${recordsByStudent[studentId].map(record => `
+                        <div class="record-item">
+                            <div class="record-date">${record.date}</div>
+                            <div class="record-details">
+                                <div class="detail-item">
+                                    <div class="detail-label">起床・就寝時間</div>
+                                    <div class="detail-value">${record.wakeTime} 〜 ${record.sleepTime}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">勉強時間・内容</div>
+                                    <div class="detail-value">${record.studyTime}分<br><small>${record.studyContent || '記載なし'}</small></div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">スマホ時間</div>
+                                    <div class="detail-value">${record.phoneTime}分</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">練習時間・内容</div>
+                                    <div class="detail-value">${record.practiceTime}分<br><small>${record.practiceContent || '記載なし'}</small></div>
+                                </div>
+                            </div>
+                            ${record.reflection ? `
+                                <div class="detail-item" style="margin-top: 10px;">
+                                    <div class="detail-label">本人の感想</div>
+                                    <div class="detail-value">${record.reflection}</div>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="comment-section">
+                                <h4>💬 コメント管理</h4>
+                                <div class="comment-list">
+                                    ${record.comments.map(comment => `
+                                        <div class="comment-item">
+                                            <strong>${comment.author}:</strong> ${comment.text}
+                                            <div style="font-size: 0.8rem; color: #666;">${comment.timestamp}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <div class="comment-input">
+                                    <input type="text" placeholder="コメントを入力..." id="comment-${record.id}">
+                                    <button class="comment-btn" onclick="addComment(${record.id}, document.getElementById('comment-${record.id}').value); document.getElementById('comment-${record.id}').value=''">
+                                        送信
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
+        // データ保存（メモリ内）
+        function saveData() {
+            // 実際の実装では、サーバーにデータを送信
+            localStorage.setItem('routineAppRecords', JSON.stringify(records));
+            localStorage.setItem('routineAppTasks', JSON.stringify(tasks));
+        }
+
+        // データ読み込み
+        function loadData() {
+            // 実際の実装では、サーバーからデータを取得
+            const savedRecords = localStorage.getItem('routineAppRecords');
+            const savedTasks = localStorage.getItem('routineAppTasks');
+            
+            records = savedRecords ? JSON.parse(savedRecords) : [
+                {
+                    id: 1,
+                    studentId: 'student01',
+                    date: '2024/09/16',
+                    timestamp: new Date().toISOString(),
+                    wakeTime: '06:30',
+                    sleepTime: '23:00',
+                    studyTime: 90,
+                    studyContent: '数学の二次関数、英単語50個',
+                    phoneTime: 120,
+                    practiceTime: 60,
+                    practiceContent: 'ランニング30分、筋トレ30分',
+                    reflection: '今日は集中して勉強できた。明日はもう少しスマホ時間を減らしたい。',
+                    comments: [
+                        {
+                            text: '勉強時間しっかり確保できていますね！この調子で継続しましょう。',
+                            timestamp: '2024/09/16 21:00',
+                            author: '管理者 (admin01)'
+                        }
+                    ]
+                },
+                {
+                    id: 2,
+                    studentId: 'student01',
+                    date: '2024/09/15',
+                    timestamp: new Date().toISOString(),
+                    wakeTime: '06:45',
+                    sleepTime: '23:30',
+                    studyTime: 75,
+                    studyContent: '英語の長文読解、古文の助動詞',
+                    phoneTime: 150,
+                    practiceTime: 45,
+                    practiceContent: '基礎練習、シュート練習',
+                    reflection: '少し疲れていたが、なんとか勉強時間を確保できた。',
+                    comments: []
+                }
+            ];
+            
+            tasks = savedTasks ? JSON.parse(savedTasks) : [
+                {
+                    id: 1,
+                    text: '数学の宿題：問題集p.50-52を完了する',
+                    createdAt: '2024/09/16',
+                    createdBy: 'admin01'
+                },
+                {
+                    id: 2,
+                    text: '英語の単語テスト準備：単語帳unit5-6を覚える',
+                    createdAt: '2024/09/16',
+                    createdBy: 'admin01'
+                }
+            ];
+        }
+
+        // セッション復元（ページリロード時）
+        window.addEventListener('load', function() {
+            const savedUser = sessionStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showMainApp();
+            }
+        });
+
+        // セキュリティ: コンソールでの不正操作を検出
+        let devtoolsOpen = false;
+        setInterval(function() {
+            if (window.outerHeight - window.innerHeight > 200 || window.outerWidth - window.innerWidth > 200) {
+                if (!devtoolsOpen) {
+                    devtoolsOpen = true;
+                    console.warn('🔐 セキュリティ警告: 開発者ツールが検出されました。不正な操作は記録されます。');
+                }
+            } else {
+                devtoolsOpen = false;
+            }
+        }, 1000);
+
+        // 不正アクセス試行の記録
+        window.addEventListener('error', function(e) {
+            if (e.message.includes('permission') || e.message.includes('unauthorized')) {
+                console.error('🚨 不正アクセス試行が検出されました:', e.message);
+                // 実際の実装では、サーバーに送信してログに記録
+            }
+        });
+    </script>
+</body>
+</html>
